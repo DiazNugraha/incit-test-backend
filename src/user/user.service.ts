@@ -88,7 +88,6 @@ export class UserService {
       findUserOauth.refreshToken = refreshToken;
       findUserOauth.expiresAt = new Date(Date.now() + 60 * 60 * 1000);
       await this.userOauthRepository.save(findUserOauth);
-      console.log('hereee');
       return;
     }
     const userOauth = this.userOauthRepository.create({
@@ -100,5 +99,9 @@ export class UserService {
     });
 
     await this.userOauthRepository.save(userOauth);
+  }
+
+  async findUserByEmail(email: string): Promise<UserEntity> {
+    return await this.userRepository.findOneBy({ email });
   }
 }

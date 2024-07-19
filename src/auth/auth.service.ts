@@ -23,7 +23,7 @@ export class AuthService {
     }
     const { accessToken, refreshToken } = await this.generateToken(email);
     await this.userService.userOauth(user, accessToken, refreshToken);
-    console.log('keene');
+
     const loginDtoOut: LoginDtoOut = {
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -47,5 +47,36 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
+  }
+
+  async refreshToken(refreshToken: string) {
+    const configService = new ConfigService();
+    const payload = this.jwtService.verify(refreshToken, {
+      secret: configService.get('jwt.secretKey'),
+    });
+    const accessToken = this.jwtService.sign(
+      { email: payload.email },
+      {
+        secret: configService.get('jwt.secretKey'),
+        expiresIn: '1h', // Access token lifespan
+      },
+    );
+
+    const newRefreshToken = this.jwtService.sign(
+      { email: payload.email },
+      {
+        secret: configService.get('jwt.secretKey'),
+        expiresIn: '7d', // Refresh token lifespan
+      },
+    );
+
+    const findUser = await this.userService.findUserByEmail(payload.email);
+    if (!findUser) {
+      return null;
+    }
+
+    await this.userService.userOauth(findUser, accessToken, newRefreshToken);
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 }

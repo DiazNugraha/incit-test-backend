@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDtoIn, LoginDtoOut } from './dto/auth.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +44,30 @@ export class AuthController {
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
       email: result.email,
+    });
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Req() req: Request, @Res() res: Response) {
+    const refreshToken = req.cookies['refreshToken'];
+    const result = await this.authService.refreshToken(refreshToken);
+    if (!result) {
+      return null;
+    }
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+    });
+
+    return res.json({
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
     });
   }
 }
