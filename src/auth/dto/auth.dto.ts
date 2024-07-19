@@ -13,7 +13,7 @@ export class LoginDtoOut {
   accessToken: string;
 
   @ApiProperty()
-  user: any;
+  email: string;
 
   @ApiProperty()
   refreshToken: string;
