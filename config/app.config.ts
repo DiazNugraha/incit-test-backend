@@ -8,4 +8,7 @@ export default () => ({
   mailer: {
     ...MailerConfig(),
   },
+  jwt: {
+    secretKey: process.env.JWT_SECRET_KEY,
+  },
 });
