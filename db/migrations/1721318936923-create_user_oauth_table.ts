@@ -6,8 +6,7 @@ export class CreateUserOauthTable1721318936923 implements MigrationInterface {
             CREATE TABLE "user_oauth" (
                 "id" SERIAL PRIMARY KEY,
                 "user_id" INT NOT NULL REFERENCES "users" ("id"),
-                "provider_id" INT NOT NULL REFERENCES "oauth_providers" ("id"),
-                "provider_user_id" VARCHAR(255) NOT NULL,
+                "provider_id" INT NOT NULL REFERENCES "oauth_providers" ("id"),                
                 "access_token" TEXT NOT NULL,
                 "refresh_token" TEXT,
                 "expires_at" TIMESTAMP,
