@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtAuthModule } from 'src/jwt/jwt.module';
 import { FacebookAuthService } from './oauth/facebook-auth.service';
 import { HttpModule } from '@nestjs/axios';
+import { GoogleAuthService } from './oauth/google-auth.service';
 
 @Module({
   imports: [
@@ -24,7 +25,19 @@ import { HttpModule } from '@nestjs/axios';
     HttpModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtService, FacebookAuthService],
-  exports: [AuthService, UserService, JwtService, FacebookAuthService],
+  providers: [
+    AuthService,
+    UserService,
+    JwtService,
+    FacebookAuthService,
+    GoogleAuthService,
+  ],
+  exports: [
+    AuthService,
+    UserService,
+    JwtService,
+    FacebookAuthService,
+    GoogleAuthService,
+  ],
 })
 export class AuthModule {}

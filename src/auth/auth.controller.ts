@@ -14,6 +14,7 @@ import { Request, Response } from 'express';
 import { AuthGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { FacebookAuthService } from './oauth/facebook-auth.service';
+import { GoogleAuthService } from './oauth/google-auth.service';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,7 @@ export class AuthController {
     private authService: AuthService,
     private configService: ConfigService,
     private facebookAuthService: FacebookAuthService,
+    private googleAuthService: GoogleAuthService,
   ) {}
 
   @Get('verify')
@@ -97,6 +99,7 @@ export class AuthController {
     });
   }
 
+  // FACEBOOK OAUTH
   @Get('facebook')
   async facebookAuth(@Res() res: Response) {
     const { app_id, redirect_uri } = this.configService.get('oauth.facebook');
@@ -116,6 +119,36 @@ export class AuthController {
       await this.facebookAuthService.getFacebookUserProfile(accessToken);
 
     const result = await this.authService.validateOauthLogin(profile.email, 3);
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+    });
+
+    return res.json({
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+  }
+
+  // GOOGLE OAUTH
+  @Get('google')
+  googleAuth(@Res() res: Response) {
+    const url = this.googleAuthService.generateAuthUrl();
+    res.redirect(url);
+  }
+
+  @Get('google/redirect')
+  async googleAuthRedirect(@Query('code') code: string, @Res() res: Response) {
+    const accessToken = await this.googleAuthService.getGoogleAccessToken(code);
+    const profile = await this.googleAuthService.getGoogleUserProfile(
+      accessToken.id_token,
+    );
+    const result = await this.authService.validateOauthLogin(profile.email, 2);
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
