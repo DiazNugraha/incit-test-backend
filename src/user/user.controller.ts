@@ -15,7 +15,7 @@ export class UserController {
     const protocol = request.protocol;
     const host = request.get('host');
     const hostUrl = `${protocol}://${host}`;
-    const { email, password } = createUserDtoIn;
-    await this.userService.signUp(email, password, hostUrl);
+    const { email, password, name } = createUserDtoIn;
+    await this.userService.signUp(name, email, password, hostUrl);
   }
 }

@@ -19,6 +19,7 @@ export class UserService {
   ) {}
 
   async signUp(
+    name: string,
     email: string,
     password: string,
     hostUrl: string,
@@ -27,6 +28,7 @@ export class UserService {
     const token = this.mailService.generateVerificationToken();
 
     const newUser = await this.userRepository.create({
+      name: name,
       email: email,
       password: hashedPassword,
       emailVerificationToken: token,
@@ -128,6 +130,7 @@ export class UserService {
   }
 
   async validateOauthLogin(
+    name: string,
     email: string,
     accessToken: string,
     refreshToken: string,
@@ -136,6 +139,7 @@ export class UserService {
     let user = await this.userRepository.findOneBy({ email });
     if (!user) {
       user = this.userRepository.create({
+        name: name,
         email: email,
         emailVerified: true,
         loginCount: 1,

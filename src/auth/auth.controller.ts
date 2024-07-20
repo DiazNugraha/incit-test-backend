@@ -117,8 +117,11 @@ export class AuthController {
       await this.facebookAuthService.getFacebookAccessToken(code);
     const profile =
       await this.facebookAuthService.getFacebookUserProfile(accessToken);
-
-    const result = await this.authService.validateOauthLogin(profile.email, 3);
+    const result = await this.authService.validateOauthLogin(
+      profile.name,
+      profile.email,
+      3,
+    );
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -148,7 +151,11 @@ export class AuthController {
     const profile = await this.googleAuthService.getGoogleUserProfile(
       accessToken.id_token,
     );
-    const result = await this.authService.validateOauthLogin(profile.email, 2);
+    const result = await this.authService.validateOauthLogin(
+      profile.name,
+      profile.email,
+      2,
+    );
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,

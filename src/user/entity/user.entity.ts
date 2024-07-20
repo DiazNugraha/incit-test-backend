@@ -8,6 +8,9 @@ export class UserEntity {
   @Column({ name: 'email', type: 'varchar', unique: true })
   email: string;
 
+  @Column({ name: 'name', type: 'varchar', nullable: true })
+  name: string;
+
   @Column({ name: 'password', type: 'varchar', nullable: true })
   password: string | null;
 

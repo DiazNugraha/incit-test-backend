@@ -9,6 +9,9 @@ export class UserDtoOut {
   email: string;
 
   @ApiProperty()
+  name: string;
+
+  @ApiProperty()
   loginCount: number;
 
   @ApiProperty()
@@ -26,6 +29,7 @@ export class UserDtoOut {
   constructor(user: UserEntity) {
     this.id = user.id;
     this.email = user.email;
+    this.name = user.name;
     this.loginCount = user.loginCount;
     this.lastLoginAt = user.lastLoginAt;
     this.lastLogoutAt = user.lastLogoutAt;
@@ -40,11 +44,17 @@ export class CreateUserDtoOut {
 
   @ApiProperty()
   email: string;
+
+  @ApiProperty()
+  name: string;
 }
 
 export class CreateUserDtoIn {
   @ApiProperty()
   email: string;
+
+  @ApiProperty()
+  name: string;
 
   @ApiProperty()
   password: string;

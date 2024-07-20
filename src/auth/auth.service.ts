@@ -84,11 +84,13 @@ export class AuthService {
   }
 
   async validateOauthLogin(
+    name: string,
     email: string,
     providerId: number,
   ): Promise<LoginDtoOut> {
     const { accessToken, refreshToken } = await this.generateToken(email);
     const user = await this.userService.validateOauthLogin(
+      name,
       email,
       accessToken,
       refreshToken,
