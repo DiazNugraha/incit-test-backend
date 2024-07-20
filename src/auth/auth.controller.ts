@@ -12,10 +12,16 @@ import { AuthService } from './auth.service';
 import { LoginDtoIn } from './dto/auth.dto';
 import { Request, Response } from 'express';
 import { AuthGuard } from './auth.guard';
+import { ConfigService } from '@nestjs/config';
+import { FacebookAuthService } from './oauth/facebook-auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private configService: ConfigService,
+    private facebookAuthService: FacebookAuthService,
+  ) {}
 
   @Get('verify')
   async verifyEmail(
@@ -75,6 +81,41 @@ export class AuthController {
       return null;
     }
 
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie('accessToken', result.accessToken, {
+      httpOnly: true,
+      maxAge: 60 * 60 * 1000,
+    });
+
+    return res.json({
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+  }
+
+  @Get('facebook')
+  async facebookAuth(@Res() res: Response) {
+    const { app_id, redirect_uri } = this.configService.get('oauth.facebook');
+    const scopes = ['public_profile', 'email'];
+    const authUrl = `https://www.facebook.com/v10.0/dialog/oauth?client_id=${app_id}&redirect_uri=${redirect_uri}&scope=${scopes.join(',')}`;
+    res.redirect(authUrl);
+  }
+
+  @Get('facebook/redirect')
+  async facebookAuthRedirect(
+    @Query('code') code: string,
+    @Res() res: Response,
+  ) {
+    const accessToken =
+      await this.facebookAuthService.getFacebookAccessToken(code);
+    const profile =
+      await this.facebookAuthService.getFacebookUserProfile(accessToken);
+
+    const result = await this.authService.validateOauthLogin(profile.email, 3);
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,

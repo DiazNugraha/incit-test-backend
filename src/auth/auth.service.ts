@@ -82,4 +82,18 @@ export class AuthService {
 
     return { accessToken, refreshToken: newRefreshToken };
   }
+
+  async validateOauthLogin(
+    email: string,
+    providerId: number,
+  ): Promise<LoginDtoOut> {
+    const { accessToken, refreshToken } = await this.generateToken(email);
+    const user = await this.userService.validateOauthLogin(
+      email,
+      accessToken,
+      refreshToken,
+      providerId,
+    );
+    return { accessToken, refreshToken, email: user.email };
+  }
 }

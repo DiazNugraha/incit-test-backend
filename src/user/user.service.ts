@@ -100,6 +100,7 @@ export class UserService {
     user: UserEntity,
     accessToken: string,
     refreshToken: string,
+    providerId?: number,
   ): Promise<void> {
     const findUserOauth = await this.userOauthRepository.findOneBy({
       userId: user.id,
@@ -116,7 +117,7 @@ export class UserService {
       accessToken: accessToken,
       refreshToken: refreshToken,
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-      providerId: 1,
+      providerId: providerId ? providerId : 1,
     });
 
     await this.userOauthRepository.save(userOauth);
@@ -124,5 +125,33 @@ export class UserService {
 
   async findUserByEmail(email: string): Promise<UserEntity> {
     return await this.userRepository.findOneBy({ email });
+  }
+
+  async validateOauthLogin(
+    email: string,
+    accessToken: string,
+    refreshToken: string,
+    providerId: number,
+  ): Promise<UserEntity> {
+    let user = await this.userRepository.findOneBy({ email });
+    if (!user) {
+      user = this.userRepository.create({
+        email: email,
+        emailVerified: true,
+        loginCount: 1,
+        lastLoginAt: new Date(),
+      });
+
+      await this.userRepository.save(user);
+      await this.userOauth(user, accessToken, refreshToken, providerId);
+      return user;
+    }
+
+    user.loginCount += 1;
+    user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
+
+    await this.userOauth(user, accessToken, refreshToken, providerId);
+    return user;
   }
 }

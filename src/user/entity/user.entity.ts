@@ -8,8 +8,8 @@ export class UserEntity {
   @Column({ name: 'email', type: 'varchar', unique: true })
   email: string;
 
-  @Column({ name: 'password', type: 'varchar' })
-  password: string;
+  @Column({ name: 'password', type: 'varchar', nullable: true })
+  password: string | null;
 
   @Column({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
