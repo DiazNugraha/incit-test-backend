@@ -9,6 +9,7 @@ export class AuthService {
   constructor(
     private userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async verifyEmailToken(token: string) {
@@ -34,15 +35,14 @@ export class AuthService {
   }
 
   async generateToken(email: string) {
-    const configService = new ConfigService();
     const payload = { email: email };
     const accessToken = this.jwtService.sign(payload, {
-      secret: configService.get('jwt.secretKey'),
+      secret: this.configService.get('jwt.secretKey'),
       expiresIn: '1h', // Access token lifespan
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: configService.get('jwt.secretKey'),
+      secret: this.configService.get('jwt.secretKey'),
       expiresIn: '7d', // Refresh token lifespan
     });
 
@@ -50,14 +50,13 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string) {
-    const configService = new ConfigService();
     const payload = this.jwtService.verify(refreshToken, {
-      secret: configService.get('jwt.secretKey'),
+      secret: this.configService.get('jwt.secretKey'),
     });
     const accessToken = this.jwtService.sign(
       { email: payload.email },
       {
-        secret: configService.get('jwt.secretKey'),
+        secret: this.configService.get('jwt.secretKey'),
         expiresIn: '1h', // Access token lifespan
       },
     );
@@ -65,7 +64,7 @@ export class AuthService {
     const newRefreshToken = this.jwtService.sign(
       { email: payload.email },
       {
-        secret: configService.get('jwt.secretKey'),
+        secret: this.configService.get('jwt.secretKey'),
         expiresIn: '7d', // Refresh token lifespan
       },
     );

@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import appConfig from 'config/app.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from 'db/data-source';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { dataSourceOptions } from 'db/data-source';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, JwtService],
 })
 export class AppModule {}
