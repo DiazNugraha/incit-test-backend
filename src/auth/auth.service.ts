@@ -34,6 +34,10 @@ export class AuthService {
     return loginDtoOut;
   }
 
+  async logout(refreshToken: string) {
+    await this.userService.logout(refreshToken);
+  }
+
   async generateToken(email: string) {
     const payload = { email: email };
     const accessToken = this.jwtService.sign(payload, {

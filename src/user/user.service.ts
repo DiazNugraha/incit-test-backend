@@ -68,11 +68,32 @@ export class UserService {
       return null;
     }
 
+    user.loginCount += 1;
+    user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
+
     if (!user.emailVerified) {
       return null;
     }
 
     return user;
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    const findUserOauth = await this.userOauthRepository.findOneBy({
+      refreshToken: refreshToken,
+    });
+    const findUser = await this.userRepository.findOneBy({
+      id: findUserOauth.userId,
+    });
+    if (findUserOauth && findUser) {
+      findUserOauth.expiresAt = new Date(Date.now() - 1);
+      findUserOauth.refreshToken = null;
+      await this.userOauthRepository.save(findUserOauth);
+
+      findUser.lastLogoutAt = new Date();
+      await this.userRepository.save(findUser);
+    }
   }
 
   async userOauth(
