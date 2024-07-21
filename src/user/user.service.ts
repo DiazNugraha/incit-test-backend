@@ -1,8 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserEntity } from './entity/user.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ChangePasswordDtoIn, CreateUserDtoOut } from './dto/user.dto';
+import {
+  ChangePasswordDtoIn,
+  CreateUserDtoOut,
+  UserInfoDtoOut,
+  UserListDtoOut,
+  UserStatisticsDtoOut,
+} from './dto/user.dto';
 import { PasswordHash } from 'src/security/password-hash';
 import { MailService } from 'src/common/services/mail.service';
 import { UserOauthEntity } from './entity/user-oauth.entity';
@@ -214,6 +220,81 @@ export class UserService {
       id: user.id,
       email: user.email,
       name: user.name,
+    };
+  }
+
+  async getUserList(): Promise<UserListDtoOut> {
+    const users = await this.userRepository.find({
+      select: [
+        'id',
+        'email',
+        'name',
+        'loginCount',
+        'lastLoginAt',
+        'lastLogoutAt',
+        'createdAt',
+      ],
+    });
+    const result: UserInfoDtoOut[] = [];
+    for (const user of users) {
+      result.push({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        loginCount: user.loginCount,
+        lastLoginAt: user.lastLoginAt,
+        lastLogoutAt: user.lastLogoutAt,
+        createdAt: user.createdAt,
+      });
+    }
+
+    return {
+      users: result,
+    };
+  }
+
+  async getUserStatistics(): Promise<UserStatisticsDtoOut> {
+    const userCount = await this.userRepository.count();
+    const activeUserCount = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.lastLoginAt > user.lastLogoutAt')
+      .getCount();
+
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const activeSessionsQuery = await this.userRepository
+      .createQueryBuilder('user')
+      .select('DATE(user.last_login_at)', 'logindate')
+      .addSelect('COUNT(user.id)', 'activesessions')
+      .where('user.last_login_at > :sevenDaysAgo', { sevenDaysAgo })
+      .andWhere('user.last_login_at > user.last_logout_at')
+      .groupBy('logindate')
+      .getRawMany();
+
+    const dailyCounts = Array(7).fill(0);
+
+    activeSessionsQuery.forEach((row) => {
+      const index = Math.floor(
+        (new Date().getTime() - new Date(row.logindate).getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+      if (index >= 0 && index < 7) {
+        dailyCounts[6 - index] = parseInt(row.activesessions, 10);
+      }
+    });
+
+    const totalActiveSessions = dailyCounts.reduce(
+      (acc, count) => acc + count,
+      0,
+    );
+    const averageActiveSessions = totalActiveSessions / 7;
+
+    return {
+      userCount: userCount,
+      activeUserCount: activeUserCount,
+      averageActiveUserCount: averageActiveSessions,
     };
   }
 }

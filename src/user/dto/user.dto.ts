@@ -72,3 +72,42 @@ export class ChangeNameDtoIn {
   @ApiProperty()
   name: string;
 }
+
+export class UserListDtoOut {
+  @ApiProperty()
+  users: UserInfoDtoOut[];
+}
+
+export class UserInfoDtoOut {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  loginCount: number;
+
+  @ApiProperty()
+  lastLoginAt: Date;
+
+  @ApiProperty()
+  lastLogoutAt: Date;
+
+  @ApiProperty()
+  createdAt: Date;
+}
+
+export class UserStatisticsDtoOut {
+  @ApiProperty()
+  userCount: number;
+
+  @ApiProperty()
+  activeUserCount: number;
+
+  @ApiProperty()
+  averageActiveUserCount: number;
+}

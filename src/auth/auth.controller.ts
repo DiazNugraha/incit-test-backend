@@ -15,8 +15,10 @@ import { AuthGuard } from './auth.guard';
 import { ConfigService } from '@nestjs/config';
 import { FacebookAuthService } from './oauth/facebook-auth.service';
 import { GoogleAuthService } from './oauth/google-auth.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(
     private authService: AuthService,

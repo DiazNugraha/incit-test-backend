@@ -14,11 +14,15 @@ import {
   ChangePasswordDtoIn,
   CreateUserDtoIn,
   CreateUserDtoOut,
+  UserListDtoOut,
+  UserStatisticsDtoOut,
 } from './dto/user.dto';
 import { Request } from 'express';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('user')
+@ApiTags('User')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -76,5 +80,25 @@ export class UserController {
       throw new BadRequestException('Failed to get profile');
     }
     return user;
+  }
+
+  @Get('user-list')
+  @UseGuards(AuthGuard)
+  async getUserList(): Promise<UserListDtoOut> {
+    const users = await this.userService.getUserList();
+    if (!users) {
+      throw new BadRequestException('Failed to get user list');
+    }
+    return users;
+  }
+
+  @Get('user-statistics')
+  @UseGuards(AuthGuard)
+  async getUserStatistics(): Promise<UserStatisticsDtoOut> {
+    const stats = await this.userService.getUserStatistics();
+    if (!stats) {
+      throw new BadRequestException('Failed to get user statistics');
+    }
+    return stats;
   }
 }
