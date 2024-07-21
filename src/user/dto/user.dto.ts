@@ -109,5 +109,5 @@ export class UserStatisticsDtoOut {
   activeUserCount: number;
 
   @ApiProperty()
-  averageActiveUserCount: number;
+  averageActiveUserCount: string;
 }

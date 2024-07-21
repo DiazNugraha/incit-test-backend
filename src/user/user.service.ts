@@ -294,7 +294,7 @@ export class UserService {
     return {
       userCount: userCount,
       activeUserCount: activeUserCount,
-      averageActiveUserCount: averageActiveSessions,
+      averageActiveUserCount: averageActiveSessions.toFixed(2),
     };
   }
 }
