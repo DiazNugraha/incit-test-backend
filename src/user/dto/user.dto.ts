@@ -59,3 +59,16 @@ export class CreateUserDtoIn {
   @ApiProperty()
   password: string;
 }
+
+export class ChangePasswordDtoIn {
+  @ApiProperty()
+  oldPassword: string | null;
+
+  @ApiProperty()
+  newPassword: string;
+}
+
+export class ChangeNameDtoIn {
+  @ApiProperty()
+  name: string;
+}

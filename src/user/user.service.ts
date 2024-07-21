@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserEntity } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDtoOut } from './dto/user.dto';
+import { ChangePasswordDtoIn, CreateUserDtoOut } from './dto/user.dto';
 import { PasswordHash } from 'src/security/password-hash';
 import { MailService } from 'src/common/services/mail.service';
 import { UserOauthEntity } from './entity/user-oauth.entity';
@@ -157,5 +157,63 @@ export class UserService {
 
     await this.userOauth(user, accessToken, refreshToken, providerId);
     return user;
+  }
+
+  async changePassword(
+    userId: number,
+    changePasswordDtoIn: ChangePasswordDtoIn,
+  ): Promise<boolean> {
+    const user = await this.userRepository.findOneBy({
+      id: userId,
+    });
+    if (!user) {
+      return false;
+    }
+    if (!user.password) {
+      user.password = await this.passwordHash.hash(
+        changePasswordDtoIn.newPassword,
+      );
+      await this.userRepository.save(user);
+      return true;
+    }
+
+    if (
+      !(await this.passwordHash.compare(
+        changePasswordDtoIn.oldPassword,
+        user.password,
+      ))
+    ) {
+      return false;
+    }
+
+    user.password = await this.passwordHash.hash(
+      changePasswordDtoIn.newPassword,
+    );
+    await this.userRepository.save(user);
+    return true;
+  }
+
+  async changeName(userId: number, name: string): Promise<boolean> {
+    const user = await this.userRepository.findOneBy({
+      id: userId,
+    });
+    if (!user) {
+      return false;
+    }
+    user.name = name;
+    await this.userRepository.save(user);
+    return true;
+  }
+
+  async getProfile(userId: number): Promise<CreateUserDtoOut> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      return null;
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    };
   }
 }

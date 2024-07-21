@@ -29,6 +29,7 @@ export class AuthService {
       accessToken: accessToken,
       refreshToken: refreshToken,
       email: user.email,
+      id: user.id,
     };
 
     return loginDtoOut;
@@ -96,6 +97,6 @@ export class AuthService {
       refreshToken,
       providerId,
     );
-    return { accessToken, refreshToken, email: user.email };
+    return { accessToken, refreshToken, email: user.email, id: user.id };
   }
 }

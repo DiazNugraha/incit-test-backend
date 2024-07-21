@@ -10,6 +10,9 @@ export class LoginDtoIn {
 
 export class LoginDtoOut {
   @ApiProperty()
+  id: number;
+
+  @ApiProperty()
   accessToken: string;
 
   @ApiProperty()
