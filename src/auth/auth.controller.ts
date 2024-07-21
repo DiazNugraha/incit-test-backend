@@ -58,11 +58,12 @@ export class AuthController {
       maxAge: 60 * 60 * 1000,
     });
 
-    return res.json({
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      email: result.email,
+    res.cookie('userId', result.id, {
+      httpOnly: false,
     });
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    return res.redirect(`${frontendUrl}`);
   }
 
   @Post('logout')
@@ -72,6 +73,7 @@ export class AuthController {
     await this.authService.logout(refreshToken);
     res.clearCookie('refreshToken');
     res.clearCookie('accessToken');
+    res.clearCookie('userId');
     return res.json({ message: 'Logout successful' });
   }
 
@@ -92,11 +94,8 @@ export class AuthController {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
     });
-
-    return res.json({
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-    });
+    const frontendUrl = process.env.FRONTEND_URL;
+    return res.redirect(`${frontendUrl}`);
   }
 
   // FACEBOOK OAUTH
@@ -132,10 +131,12 @@ export class AuthController {
       maxAge: 60 * 60 * 1000,
     });
 
-    return res.json({
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+    res.cookie('userId', result.id, {
+      httpOnly: false,
     });
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    return res.redirect(`${frontendUrl}`);
   }
 
   // GOOGLE OAUTH
@@ -166,9 +167,11 @@ export class AuthController {
       maxAge: 60 * 60 * 1000,
     });
 
-    return res.json({
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+    res.cookie('userId', result.id, {
+      httpOnly: false,
     });
+
+    const frontendUrl = process.env.FRONTEND_URL;
+    return res.redirect(`${frontendUrl}`);
   }
 }
