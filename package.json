@@ -21,7 +21,8 @@
     "typeorm": "npx typeorm -d dist/db/data-source.js",
     "typeorm:create-migration": "npm run typeorm --migration:create ./db/migrations/$npm_config_name",
     "typeorm:migrate": "npm run typeorm -- migration:run",
-    "typeorm:revert": "npm run typeorm -- migration:revert"
+    "typeorm:revert": "npm run typeorm -- migration:revert",
+    "seed": "node dist/src/seeder/index.js"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.2",
